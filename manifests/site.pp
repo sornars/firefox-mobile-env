@@ -14,11 +14,6 @@ user { 'vagrant':
 exec { 'apt-get update':
 }
 
-package { 'unzip':
-    ensure => present,
-    require => Exec['apt-get update']
-}
-
 package { 'openjdk-7-jdk':
     ensure => present,
     require => Exec['apt-get update']
@@ -60,37 +55,22 @@ exec { 'install android-ndk':
     require => [Group['android'],Exec['download android-ndk']]
 }
 
-exec { 'download android-adt-bundle':
-    command => 'wget https://dl.google.com/android/adt/adt-bundle-linux-x86-20140702.zip -P /vagrant                                                                                                                                                                                                                        ',
-    creates => '/vagrant/adt-bundle-linux-x86-20140702.zip'
+exec { 'download android-sdk':
+    command => 'wget http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz -P /vagrant                                                                                                                                                                                                                        ',
+    creates => '/vagrant/android-sdk_r24.0.2-linux.tgz'
 }
 
-exec { 'install android-adt-bundle':
-    command => 'unzip /vagrant/adt-bundle-linux-x86-20140702.zip -d /opt;chmod -R 775 /opt/adt-bundle-linux-x86-20140702;chgrp -R android /opt/adt-bundle-linux-x86-20140702',
-    creates => '/opt/adt-bundle-linux-x86-20140702',
-    require => [Package['unzip'],Group['android'],Exec['download android-adt-bundle']]
+exec { 'install android-sdk':
+    command => 'tar -xf /vagrant/android-sdk_r24.0.2-linux.tgz -C /opt;chmod -R 775 /opt/android-sdk-linux;chgrp -R android /opt/android-sdk-linux',
+    creates => '/opt/android-sdk-linux',
+    require => [Group['android'],Exec['download android-sdk']]
 }
-
-# notify { 'update android sdk':
-#     message => 'To update the Android SDK execute: /opt/adt-bundle-linux-x86-20140702/sdk/tools/android update sdk -u',
-#     require => Exec['install android-adt-bundle']
-# }
-
-# notify { 'update android adb':
-#     message => 'To update the Android Device Bridge execute: /opt/adt-bundle-linux-x86-20140702/sdk/tools/android update adb -u',
-#     require => Exec['install android-adt-bundle']
-# }
-
-# notify { 'list android sdk updates':
-#     message => 'To update the Android Device Bridge execute: /opt/adt-bundle-linux-x86-20140702/sdk/tools/android list sdk -a',
-#     require => Exec['install android-adt-bundle']
-# }
 
 exec { 'install minimum sdk':
-    command => 'echo y | /opt/adt-bundle-linux-x86-20140702/sdk/tools/android update sdk -u -a -t 3,2,1,113,118,20',
+    command => 'echo y | /opt/android-sdk-linux/tools/android update sdk -u -a -t 3,2,1,113,118,20',
     # creates => '',
     timeout => 0,
-    require => Exec['install android-adt-bundle']
+    require => Exec['install android-sdk']
 }
 
 exec { 'clone mozilla repository':
