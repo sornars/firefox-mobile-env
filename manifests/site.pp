@@ -88,6 +88,8 @@ exec { 'install android-adt-bundle':
 
 exec { 'install minimum sdk':
     command => 'echo y | /opt/adt-bundle-linux-x86-20140702/sdk/tools/android update sdk -u -a -t 3,2,1,113,118,20',
+    # creates => '',
+    timeout => 0,
     require => Exec['install android-adt-bundle']
 }
 
